@@ -1,3 +1,5 @@
+![Banner](images/bannerL.png)
+
 # Liberty Co. — Enterprise Security Assessment & Incident Response
 
 ## Overview
