@@ -1,7 +1,7 @@
 # Executive Summary
 ## Liberty Co. Security Engagement | Sprint 1
 
----
+![Security Posture](../images/SecurityPostureComparison.png)
 
 ## Engagement Scope
 
