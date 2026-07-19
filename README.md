@@ -13,7 +13,7 @@ The engagement is structured in two phases that reflect the natural lifecycle of
 
 All findings, conclusions, and recommendations in this repository are derived from evidence documented within each report. Where evidence is insufficient to support a definitive conclusion, findings are explicitly flagged as hypotheses or open investigative leads — never presented as confirmed fact.
 
----
+![Executive](images/executive.png)
 
 ## Client Profile
 
