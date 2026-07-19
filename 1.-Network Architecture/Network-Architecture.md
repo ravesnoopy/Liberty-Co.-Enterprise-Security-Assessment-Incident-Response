@@ -5,7 +5,7 @@
 
 ## Before — Flat Network / No Segmentation
 
-![Before](images/before.png)
+![Before](../images/before.png)
 
 | Device | Role | IP |
 |---|---|---|
@@ -27,7 +27,7 @@
 
 ## After — Segmented Network / DMZ / Default Deny Firewall
 
-![After](images/after.png)
+![after](../images/after.png)
 
 | VLAN | Zone | Device | IP |
 |---|---|---|---|
