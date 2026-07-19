@@ -1,0 +1,101 @@
+# 09 — MITRE ATT&CK Mapping
+## Liberty Co. Security Engagement | Threat Behavior Analysis
+
+---
+
+## Overview
+
+This document consolidates the MITRE ATT&CK Enterprise Matrix mapping for all five incidents investigated during the Liberty Co. engagement. Each technique is tied to specific observed behavior and the alert where it was identified.
+
+Framework: **MITRE ATT&CK Enterprise v14**
+Scope: **ALT-2024-001 through ALT-2024-005**
+
+---
+
+## Full Technique Matrix
+
+| Tactic | Technique ID | Technique Name | Alert | Observed Behavior |
+|---|---|---|---|---|
+| Initial Access | T1566.002 | Phishing: Spearphishing Link | ALT-2024-002 | Malicious link delivered via `it-soporte@micro5oft[.]com` impersonating IT support |
+| Credential Access | T1557 | Adversary-in-the-Middle | ALT-2024-002 | `evilginx2` hosted at `45.142.212.100` used to intercept credentials and session tokens |
+| Credential Access | T1539 | Steal Web Session Cookie | ALT-2024-002 | Session token replayed from attacker IP — MFA bypassed |
+| Credential Access | T1003.001 | OS Credential Dumping: LSASS Memory | ALT-2024-003 | `m1m1k4tz.exe` executed to dump LSASS process memory on Carlos Ruiz endpoint |
+| Credential Access | T1003.002 | OS Credential Dumping: Security Account Manager | ALT-2024-003 | `Impacket secretsdump.py` used for additional credential harvesting |
+| Discovery | T1018 | Remote System Discovery | ALT-2024-005 | 1,247 internal hosts enumerated across `192.168.0.0/16` |
+| Discovery | T1046 | Network Service Scanning | ALT-2024-005 | Ports 22/80/443/445/1433/3306/3389 probed across subnet |
+| Privilege Escalation | T1548 | Abuse Elevation Control Mechanism | ALT-2024-003 | Domain Admin privileges abused for lateral movement and payload deployment |
+| Privilege Escalation | T1098.003 | Account Manipulation: Add to Group | ALT-2024-003 | `svc_backup_adm` added to Domain Admins group |
+| Persistence | T1136.002 | Create Account: Domain Account | ALT-2024-003 | Unauthorized domain account `svc_backup_adm` created |
+| Persistence | T1078 | Valid Accounts | ALT-2024-002, ALT-2024-004 | Compromised `jmendez@` and `svc_database` accounts used for sustained access |
+| Defense Evasion | T1036.005 | Masquerading: Match Legitimate Name | ALT-2024-001 | `svchost32.exe` impersonating legitimate Windows process `svchost.exe` |
+| Defense Evasion | T1564.006 | Hide Artifacts: Run Virtual Instance | ALT-2024-005 | VM installed on LAPTOP-MKT-03 to stage scanning activity and reduce host detection |
+| Lateral Movement | T1021 | Remote Services | ALT-2024-002 | Compromised `jmendez@` session used to access HR storage and Active Directory |
+| Command and Control | T1071.001 | Application Layer Protocol: Web Protocols | ALT-2024-001 | C2 beacon to `lockbit3-decryptor[.]onion` via `svchost32.exe` |
+| Command and Control | T1071.004 | Application Layer Protocol: DNS | ALT-2024-004 | DNS used as covert C2 and exfiltration channel from `10.0.0.45` |
+| Command and Control | T1583.001 | Acquire Infrastructure: Domains | ALT-2024-004 | Attacker-registered domain (8 days old) used as DNS tunneling endpoint |
+| Exfiltration | T1041 | Exfiltration Over C2 Channel | ALT-2024-001, ALT-2024-002 | Data exfiltration assessed prior to LockBit encryption; `RRHH/Nomina_2024.xlsx` exfiltrated |
+| Exfiltration | T1048.001 | Exfiltration Over Alternative Protocol: DNS | ALT-2024-004 | 14,200 DNS queries in 45 min — Base64-encoded subdomains used to tunnel data |
+| Impact | T1486 | Data Encrypted for Impact | ALT-2024-001 | 847 financial files encrypted by LockBit 3.0 across accounting segment |
+
+---
+
+## Tactic Coverage Summary
+
+| Tactic | Techniques Mapped |
+|---|---|
+| Initial Access | 1 |
+| Credential Access | 4 |
+| Discovery | 2 |
+| Privilege Escalation | 2 |
+| Persistence | 2 |
+| Defense Evasion | 2 |
+| Lateral Movement | 1 |
+| Command and Control | 3 |
+| Exfiltration | 2 |
+| Impact | 1 |
+| **Total** | **20** |
+
+---
+
+## Attack Chain — Tactic Progression
+
+```
+Initial Access → Credential Access → Discovery → Privilege Escalation
+      │                │                 │                │
+ T1566.002         T1557, T1539      T1018, T1046     T1548, T1098.003
+      │                │                 │                │
+      └────────────────┴─────────────────┘                │
+                                                          ▼
+                                              Persistence + Defense Evasion
+                                              T1136.002, T1078, T1036.005, T1564.006
+                                                          │
+                                                          ▼
+                                               Lateral Movement → C2
+                                                   T1021        T1071.001, T1071.004
+                                                          │
+                                                          ▼
+                                                    Exfiltration → Impact
+                                                 T1041, T1048.001   T1486
+```
+
+---
+
+## ATT&CK Navigator Export
+
+The full technique matrix for this engagement can be visualized using the [MITRE ATT&CK Navigator](https://mitre-attack.github.io/attack-navigator/).
+
+**Technique IDs for import:**
+`T1566.002, T1557, T1539, T1003.001, T1003.002, T1018, T1046, T1548, T1098.003, T1136.002, T1078, T1036.005, T1564.006, T1021, T1071.001, T1071.004, T1583.001, T1041, T1048.001, T1486`
+
+---
+
+## Key Observations
+
+- **Credential Access was the most exploited tactic** — four distinct techniques were used across two incidents, reinforcing that identity is the primary attack surface in this environment.
+- **Defense evasion was deployed at both the process and infrastructure level** — process name impersonation (ALT-2024-001) and VM-based staging (ALT-2024-005) indicate an operationally aware threat actor.
+- **The attacker avoided noisy techniques** — no brute force, no exploit-based initial access, and no direct use of known CVEs were observed. The intrusion relied entirely on valid credentials and living-off-the-land tooling (`Impacket`, `evilginx2`).
+- **Network segmentation (Sprint 1 controls) contained the Impact phase** — LockBit encryption was limited to the accounting segment. Without VLAN isolation, lateral movement to additional segments would have been significantly easier.
+
+---
+
+*Mapping reflects evidence available at the time of initial triage. Techniques will be updated as forensic analysis progresses.*
